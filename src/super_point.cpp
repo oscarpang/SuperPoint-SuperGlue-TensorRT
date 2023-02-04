@@ -45,11 +45,11 @@ bool SuperPoint::build() {
         return false;
     }
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kMIN, Dims4(1, 1, 100, 100));
+                           OptProfileSelector::kMIN, Dims4(1, 1, 480, 848));
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kOPT, Dims4(1, 1, 500, 500));
+                           OptProfileSelector::kOPT, Dims4(1, 1, 480, 848));
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kMAX, Dims4(1, 1, 1500, 1500));
+                           OptProfileSelector::kMAX, Dims4(1, 1, 480, 848));
     config->addOptimizationProfile(profile);
     
     auto constructed = construct_network(builder, network, config, parser);
