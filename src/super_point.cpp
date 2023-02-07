@@ -295,6 +295,7 @@ bool SuperPoint::process_output(const BufferManager &buffers, Eigen::Matrix<doub
                           super_point_config_.keypoint_threshold);
     remove_borders(keypoints_, scores_vec, super_point_config_.remove_borders, semi_feature_map_h, semi_feature_map_w);
     top_k_keypoints(keypoints_, scores_vec, super_point_config_.max_keypoints);
+    // top_k_keypoints(keypoints_, scores_vec, (scores_vec.size() / 100) * 100);
     
     features.resize(259, scores_vec.size());
     int desc_feature_dim = desc_dims_.d[1];

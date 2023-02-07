@@ -17,6 +17,7 @@ SuperGlue::SuperGlue(const SuperGlueConfig &superglue_config) : superglue_config
     setReportableSeverity(Logger::Severity::kINTERNAL_ERROR);
 }
 
+
 bool SuperGlue::build() {
     if(deserialize_engine()){
         return true;
@@ -44,35 +45,11 @@ bool SuperGlue::build() {
         return false;
     }
 
-    auto profile = builder->createOptimizationProfile();
-    if (!profile) {
+    auto profiles = create_default_optimization_profile(builder, config);
+    if(!profiles) {
+        std::cerr << "Unable to create optimization profiles for superglue" << std::endl; 
         return false;
     }
-    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kOPT, Dims3(1, 512, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMAX,
-                           Dims3(1, 1024, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
-    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kOPT, Dims2(1, 512));
-    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
-    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
-    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kOPT,
-                           Dims3(1, 256, 512));
-    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMAX,
-                           Dims3(1, 256, 1024));
-    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kOPT, Dims3(1, 512, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMAX,
-                           Dims3(1, 1024, 2));
-    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
-    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kOPT, Dims2(1, 512));
-    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
-    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
-    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kOPT,
-                           Dims3(1, 256, 512));
-    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMAX,
-                           Dims3(1, 256, 1024));
-    config->addOptimizationProfile(profile);
 
     auto constructed = construct_network(builder, network, config, parser);
     if (!constructed) {
@@ -546,4 +523,87 @@ Eigen::Matrix<double, 259, Eigen::Dynamic> SuperGlue::normalize_keypoints(const 
   return norm_features;
 }
 
+bool SuperGlue::create_default_optimization_profile(TensorRTUniquePtr<nvinfer1::IBuilder> &builder, TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config) {
+    auto profile = builder->createOptimizationProfile();
+    if (!profile) {
+        return false;
+    }
+    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kOPT, Dims3(1, 512, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMAX,
+                           Dims3(1, 1024, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
+    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kOPT, Dims2(1, 512));
+    profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
+    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
+    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kOPT,
+                           Dims3(1, 256, 512));
+    profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMAX,
+                           Dims3(1, 256, 1024));
+    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kOPT, Dims3(1, 512, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMAX,
+                           Dims3(1, 1024, 2));
+    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
+    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kOPT, Dims2(1, 512));
+    profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
+    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
+    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kOPT,
+                           Dims3(1, 256, 512));
+    profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMAX,
+                           Dims3(1, 256, 1024));
+    config->addOptimizationProfile(profile);
+}
 
+
+// bool SuperGlue::create_optimization_profile_with_input_sizes(TensorRTUniquePtr<nvinfer1::IBuilder> &builder,
+//                                                              TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config,
+//                                                              int num_keypoints_0, 
+//                                                              int num_keypoints_1) {
+
+//     auto profile = builder->createOptimizationProfile();
+//     if (!profile) {
+//         return false;
+//     }
+//     profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kOPT, Dims3(1, num_keypoints_0, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMAX,
+//                            Dims3(1, 1024, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kOPT, Dims2(1, num_keypoints_0));
+//     profile->setDimensions(superglue_config_.input_tensor_names[1].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
+//     profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kOPT,
+//                            Dims3(1, 256, num_keypoints_0));
+//     profile->setDimensions(superglue_config_.input_tensor_names[2].c_str(), OptProfileSelector::kMAX,
+//                            Dims3(1, 256, 1024));
+//     profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kOPT, Dims3(1, num_keypoints_1, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[3].c_str(), OptProfileSelector::kMAX,
+//                            Dims3(1, 1024, 2));
+//     profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMIN, Dims2(1, 1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kOPT, Dims2(1, num_keypoints_1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[4].c_str(), OptProfileSelector::kMAX, Dims2(1, 1024));
+//     profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMIN, Dims3(1, 256, 1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kOPT,
+//                            Dims3(1, 256, num_keypoints_1));
+//     profile->setDimensions(superglue_config_.input_tensor_names[5].c_str(), OptProfileSelector::kMAX,
+//                            Dims3(1, 256, 1024));
+//     config->addOptimizationProfile(profile);
+//     return true;
+// }
+
+// bool SuperGlue::create_multiple_optimization_profiles(TensorRTUniquePtr<nvinfer1::IBuilder> &builder, TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config) {
+//     bool success = true;
+//     for(int i = 500; i <= 800; i+=100) {
+//         for(int j = 500; j <= 800; j+=100) {
+//             std::cout << "Optimization profile " << i << "x" << j << std::endl;
+//             success &= create_optimization_profile_with_input_sizes(builder, config, i, j);
+//             if(!success) {
+//                 std::cout << "Unable to create ptimization profile for " << i << "x" << j << std::endl;
+//                 return false;
+//             }
+//         } 
+//     }
+//     return success;
+// }

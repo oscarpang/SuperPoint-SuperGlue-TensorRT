@@ -73,6 +73,10 @@ private:
                         Eigen::VectorXi &indices1,
                         Eigen::VectorXd &mscores0,
                         Eigen::VectorXd &mscores1);
+                        
+    bool create_default_optimization_profile(TensorRTUniquePtr<nvinfer1::IBuilder> &builder, TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config);
+    bool create_optimization_profile_with_input_sizes(TensorRTUniquePtr<nvinfer1::IBuilder> &builder, TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config, int num_keypoints_0, int num_keypoints_1);
+    bool create_multiple_optimization_profiles(TensorRTUniquePtr<nvinfer1::IBuilder> &builder, TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config);
 
 };
 
