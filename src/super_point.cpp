@@ -19,7 +19,17 @@ SuperPoint::SuperPoint(SuperPointConfig super_point_config)
 
 bool SuperPoint::build() {
     if(deserialize_engine()){
-        return true;
+        int32_t input_binding_index = engine_->getBindingIndex(super_point_config_.input_tensor_names[0].c_str());
+        auto input_dim = engine_->getBindingDimensions(input_binding_index);
+        if( input_dim.nbDims == 4 && input_dim.d[0] == 1 
+            && input_dim.d[1] == 1 
+            && input_dim.d[2] == super_point_config_.image_height 
+            && input_dim.d[3] == super_point_config_.image_width)
+            return true;
+        std::cout << "Different input dimention " << input_dim.d[0] << " "
+                                                  << input_dim.d[1] << " "
+                                                  << input_dim.d[2] << " "
+                                                  << input_dim.d[3] << ". reconstruting the engine" << std::endl;
     }
     auto builder = TensorRTUniquePtr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(gLogger.getTRTLogger()));
     if (!builder) {
@@ -44,12 +54,13 @@ bool SuperPoint::build() {
     if (!profile) {
         return false;
     }
+
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kMIN, Dims4(1, 1, 480, 848));
+                           OptProfileSelector::kMIN, Dims4(1, 1, super_point_config_.image_height, super_point_config_.image_width));
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kOPT, Dims4(1, 1, 480, 848));
+                           OptProfileSelector::kOPT, Dims4(1, 1, super_point_config_.image_height, super_point_config_.image_width));
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
-                           OptProfileSelector::kMAX, Dims4(1, 1, 480, 848));
+                           OptProfileSelector::kMAX, Dims4(1, 1, super_point_config_.image_height, super_point_config_.image_width));
     config->addOptimizationProfile(profile);
     
     auto constructed = construct_network(builder, network, config, parser);

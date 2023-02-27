@@ -7,6 +7,8 @@
 
 
 struct SuperPointConfig {
+  int image_width{};
+  int image_height{};
   int max_keypoints{};
   double keypoint_threshold{};
   int remove_borders{};
@@ -43,6 +45,8 @@ struct Configs{
     YAML::Node file_node = YAML::LoadFile(config_file);
 
     YAML::Node superpoint_node = file_node["superpoint"];
+    superpoint_config.image_width = superpoint_node["image_width"].as<int>();
+    superpoint_config.image_height = superpoint_node["image_height"].as<int>();
     superpoint_config.max_keypoints = superpoint_node["max_keypoints"].as<int>();
     superpoint_config.keypoint_threshold = superpoint_node["keypoint_threshold"].as<double>();
     superpoint_config.remove_borders = superpoint_node["remove_borders"].as<int>();
