@@ -128,8 +128,8 @@ bool SuperPoint::construct_network(
     return false;
   }
   config->setMaxWorkspaceSize(2048_MiB);
-  config->setFlag(BuilderFlag::kFP16);
-  enableDLA(builder.get(), config.get(), super_point_config_.dla_core);
+//   config->setFlag(BuilderFlag::kFP16);
+//   enableDLA(builder.get(), config.get(), super_point_config_.dla_core);
   return true;
 }
 

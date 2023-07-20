@@ -152,7 +152,7 @@ bool SuperGlue::construct_network(
   }
   config->setMaxWorkspaceSize(512_MiB);
   config->setFlag(BuilderFlag::kFP16);
-  enableDLA(builder.get(), config.get(), superglue_config_.dla_core);
+//   enableDLA(builder.get(), config.get(), superglue_config_.dla_core);
   return true;
 }
 
